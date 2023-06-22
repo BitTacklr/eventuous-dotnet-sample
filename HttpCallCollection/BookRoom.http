@@ -1,0 +1,15 @@
+POST http://localhost:5051/booking/book
+Content-Type: application/json
+Traceparent: 00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01
+
+{
+  "BookingId":"booking-4",
+  "GuestId": "John Doe",
+  "RoomId": "R1",
+  "CheckInDate": "2023-08-01",
+  "CheckOutDate": "2023-08-02",
+  "BookingPrice": 1000.0,
+  "PrepaidAmount": 500.0,
+  "Currency": "EUR",
+  "BookingDate": "2023-06-29"
+}

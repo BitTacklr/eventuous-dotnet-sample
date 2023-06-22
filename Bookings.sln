@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bookings.Domain", "Bookings
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bookings.Payments", "Bookings.Payments\Bookings.Payments.csproj", "{EBD8B561-B354-4FDB-BF88-0BF0681F5530}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AxonIQ.Eventuous", "AxonIQ.Eventuous\AxonIQ.Eventuous.csproj", "{FD9E6973-59FC-44F6-98B0-008060AA4F63}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,6 +26,10 @@ Global
 		{EBD8B561-B354-4FDB-BF88-0BF0681F5530}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EBD8B561-B354-4FDB-BF88-0BF0681F5530}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EBD8B561-B354-4FDB-BF88-0BF0681F5530}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FD9E6973-59FC-44F6-98B0-008060AA4F63}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FD9E6973-59FC-44F6-98B0-008060AA4F63}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FD9E6973-59FC-44F6-98B0-008060AA4F63}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FD9E6973-59FC-44F6-98B0-008060AA4F63}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 	EndGlobalSection

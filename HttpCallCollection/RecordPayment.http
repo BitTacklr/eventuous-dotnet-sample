@@ -1,0 +1,11 @@
+POST http://localhost:5051/booking/recordPayment
+Content-Type: application/json
+Traceparent: 00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01
+
+{
+  "BookingId":"booking-4",
+  "PaymentId": "payment-5",
+  "PaidBy": "John Doe",
+  "PaidAmount": 250.0,
+  "Currency": "EUR"
+}

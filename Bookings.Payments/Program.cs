@@ -6,6 +6,7 @@ using Eventuous.AspNetCore;
 using Serilog;
 
 TypeMap.RegisterKnownEventTypes();
+var x = TypeMap.Instance.Map;
 Logging.ConfigureLog();
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,7 +21,7 @@ builder.Services.AddServices(builder.Configuration);
 builder.Host.UseSerilog();
 
 var app = builder.Build();
-app.AddEventuousLogs();
+app.UseEventuousLogs();
 
 app.UseSwagger();
 app.UseOpenTelemetryPrometheusScrapingEndpoint();

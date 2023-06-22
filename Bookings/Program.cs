@@ -1,7 +1,6 @@
 using Bookings;
 using Bookings.Domain.Bookings;
 using Eventuous;
-using Eventuous.AspNetCore;
 using Eventuous.Diagnostics.Logging;
 using Eventuous.Spyglass;
 using Microsoft.AspNetCore.Http.Json;
@@ -50,7 +49,8 @@ app.MapEventuousSpyglass(null);
 var factory  = app.Services.GetRequiredService<ILoggerFactory>();
 var listener = new LoggingEventListener(factory, "OpenTelemetry");
 
-try {
+try
+{
     app.Run("http://*:5051");
     return 0;
 }

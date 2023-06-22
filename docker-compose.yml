@@ -1,23 +1,14 @@
 version: '3.7'
 
 services:
-
-  esdb:
-    container_name: esdemo-esdb
-    image: ghcr.io/eventstore/eventstore:21.10.0-alpha-arm64v8
-#    image: eventstore/eventstore:latest #20.10.2-buster-slim
+  axonserver:
+    container_name: esdemo-axonserver
+    image: axoniq/axonserver
     ports:
-      - '2113:2113'
-      - '1113:1113'
-    environment:
-      EVENTSTORE_INSECURE: 'true'
-      EVENTSTORE_CLUSTER_SIZE: 1
-      EVENTSTORE_EXT_TCP_PORT: 1113
-      EVENTSTORE_HTTP_PORT: 2113
-      EVENTSTORE_ENABLE_EXTERNAL_TCP: 'true'
-      EVENTSTORE_RUN_PROJECTIONS: all
-      EVENTSTORE_START_STANDARD_PROJECTIONS: "true"
-      EVENTSTORE_ENABLE_ATOM_PUB_OVER_HTTP: "true"
+      - '8124:8124'
+      - '8024:8024'
+    volumes:
+      - ./axonserver/config:/axonserver/config
 
   mongo:
     container_name: esdemo-mongo

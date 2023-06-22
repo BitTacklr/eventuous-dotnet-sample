@@ -3,6 +3,7 @@
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     </PropertyGroup>
     <ItemGroup>
+        <PackageReference Include="AxonIQ.AxonServer.Connector" Version="1.0.0-preview.0.54" />
         <PackageReference Include="Eventuous.Diagnostics.OpenTelemetry" Version="$(EventuousVersion)" />
         <PackageReference Include="Eventuous.Application" Version="$(EventuousVersion)" />
         <PackageReference Include="Eventuous.EventStore" Version="$(EventuousVersion)" />
@@ -23,6 +24,7 @@
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
     </ItemGroup>
     <ItemGroup>
+        <ProjectReference Include="..\AxonIQ.Eventuous\AxonIQ.Eventuous.csproj" />
         <ProjectReference Include="..\Bookings.Domain\Bookings.Domain.csproj" />
     </ItemGroup>
     <ItemGroup>

@@ -1,13 +1,17 @@
+using System.Text.Json;
+using AxonIQ.AxonServer.Connector;
+using AxonIQ.Eventuous;
+using AxonIQ.Eventuous.Producers;
+using AxonIQ.Eventuous.Subscriptions;
 using Bookings.Payments.Application;
 using Bookings.Payments.Domain;
 using Bookings.Payments.Infrastructure;
 using Bookings.Payments.Integration;
+using Eventuous;
 using Eventuous.Diagnostics.OpenTelemetry;
-using Eventuous.EventStore;
-using Eventuous.EventStore.Producers;
-using Eventuous.EventStore.Subscriptions;
-using Eventuous.Producers;
 using Eventuous.Projections.MongoDB;
+using NodaTime;
+using NodaTime.Serialization.SystemTextJson;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
@@ -16,17 +20,30 @@ namespace Bookings.Payments;
 
 public static class Registrations {
     public static void AddServices(this IServiceCollection services, IConfiguration configuration) {
-        services.AddEventStoreClient(configuration["EventStore:ConnectionString"]!);
-        services.AddAggregateStore<EsdbEventStore>();
+        DefaultEventSerializer.SetDefaultSerializer(
+            new DefaultEventSerializer(
+                new JsonSerializerOptions(JsonSerializerDefaults.Web).ConfigureForNodaTime(
+                    DateTimeZoneProviders.Tzdb
+                )
+            )
+        );
+        
+        services.AddAxonServerConnectionFactory();
+        services.AddAggregateStore<AxonServerEventStore>();
         services.AddCommandService<CommandService, Payment>();
         services.AddSingleton(Mongo.ConfigureMongo(configuration));
         services.AddCheckpointStore<MongoCheckpointStore>();
-        services.AddEventProducer<EventStoreProducer>();
+        services.AddEventProducer<AxonServerProducer>();
 
         services
-            .AddGateway<AllStreamSubscription, AllStreamSubscriptionOptions, EventStoreProducer>(
+            .AddGateway<AxonServerAllStreamSubscription, AxonServerAllStreamSubscriptionOptions, AxonServerProducer>(
                 "IntegrationSubscription",
-                PaymentsGateway.Transform
+                PaymentsGateway.Transform,
+                options =>
+                {
+                    options.BufferSize = new PermitCount(1024);
+                    options.RefillBatch = new PermitCount(1024);
+                }
             );
     }
 

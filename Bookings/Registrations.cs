@@ -1,4 +1,7 @@
 using System.Text.Json;
+using AxonIQ.AxonServer.Connector;
+using AxonIQ.Eventuous;
+using AxonIQ.Eventuous.Subscriptions;
 using Bookings.Application;
 using Bookings.Application.Queries;
 using Bookings.Domain;
@@ -7,8 +10,6 @@ using Bookings.Infrastructure;
 using Bookings.Integration;
 using Eventuous;
 using Eventuous.Diagnostics.OpenTelemetry;
-using Eventuous.EventStore;
-using Eventuous.EventStore.Subscriptions;
 using Eventuous.Projections.MongoDB;
 using Eventuous.Subscriptions.Registrations;
 using NodaTime;
@@ -29,8 +30,9 @@ public static class Registrations {
             )
         );
 
-        services.AddEventStoreClient(configuration["EventStore:ConnectionString"]!);
-        services.AddAggregateStore<EsdbEventStore>();
+        services.AddAxonServerConnectionFactory();
+        services.AddSingleton<AxonServerEventStoreOptions>();
+        services.AddAggregateStore<AxonServerEventStore>();
         services.AddCommandService<BookingsCommandService, Booking>();
 
         services.AddSingleton<Services.IsRoomAvailable>((id, period) => new ValueTask<bool>(true));
@@ -41,17 +43,22 @@ public static class Registrations {
 
         services.AddSingleton(Mongo.ConfigureMongo(configuration));
         services.AddCheckpointStore<MongoCheckpointStore>();
-
-        services.AddSubscription<AllStreamSubscription, AllStreamSubscriptionOptions>(
+        
+        services.AddSubscription<AxonServerAllStreamSubscription, AxonServerAllStreamSubscriptionOptions>(
             "BookingsProjections",
             builder => builder
+                .Configure(options =>
+                {
+                    options.BufferSize = new PermitCount(1024);
+                    options.RefillBatch = new PermitCount(1024);
+                })
                 .UseCheckpointStore<MongoCheckpointStore>()
                 .AddEventHandler<BookingStateProjection>()
                 .AddEventHandler<MyBookingsProjection>()
                 .WithPartitioningByStream(2)
         );
 
-        services.AddSubscription<StreamPersistentSubscription, StreamPersistentSubscriptionOptions>(
+        services.AddSubscription<AxonServerStreamSubscription, AxonServerStreamSubscriptionOptions>(
             "PaymentIntegration",
             builder => builder
                 .Configure(x => x.StreamName = PaymentsIntegrationHandler.Stream)

@@ -1,0 +1,3 @@
+GET http://localhost:5051/bookings/booking-1
+Accept: application/json
+Traceparent: 00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-02

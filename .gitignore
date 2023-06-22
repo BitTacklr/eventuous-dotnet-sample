@@ -306,3 +306,7 @@ exclusive.lck
 .vscode
 version.txt
 /public/
+
+axonserver/data
+axonserver/eventdata
+axonserver/events
