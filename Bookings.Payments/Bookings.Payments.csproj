@@ -3,7 +3,6 @@
         <PackageReference Include="Eventuous" Version="$(EventuousVersion)" />
         <PackageReference Include="Eventuous.AspNetCore.Web" Version="$(EventuousVersion)" />
         <PackageReference Include="Eventuous.Gateway" Version="$(EventuousVersion)" />
-        <PackageReference Include="Eventuous.EventStore" Version="$(EventuousVersion)" />
         <PackageReference Include="Eventuous.Diagnostics.OpenTelemetry" Version="$(EventuousVersion)" />
         <PackageReference Include="Eventuous.Projections.MongoDB" Version="$(EventuousVersion)" />
         <PackageReference Include="MongoDB.Driver.Core.Extensions.OpenTelemetry" Version="1.0.0" />

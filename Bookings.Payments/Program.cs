@@ -1,3 +1,4 @@
+using AxonIQ.AxonServer.Connector;
 using Bookings.Payments;
 using Bookings.Payments.Domain;
 using Bookings.Payments.Infrastructure;
@@ -6,7 +7,6 @@ using Eventuous.AspNetCore;
 using Serilog;
 
 TypeMap.RegisterKnownEventTypes();
-var x = TypeMap.Instance.Map;
 Logging.ConfigureLog();
 
 var builder = WebApplication.CreateBuilder(args);
@@ -31,5 +31,8 @@ app.UseOpenTelemetryPrometheusScrapingEndpoint();
 app.MapDiscoveredCommands<Payment>();
 
 app.UseSwaggerUI();
+
+var connection = app.Services.GetRequiredService<AxonServerConnection>();
+await connection.WaitUntilReadyAsync();
 
 app.Run();

@@ -10,28 +10,19 @@ namespace AxonIQ.Eventuous.Subscriptions;
 
 public class AxonServerStreamSubscription : EventSubscriptionWithCheckpoint<AxonServerStreamSubscriptionOptions>
 {
-    private readonly AxonServerConnectionFactory _factory;
+    private readonly AxonServerConnection _connection;
 
-    public AxonServerStreamSubscription(AxonServerConnectionFactory factory, AxonServerStreamSubscriptionOptions options, ICheckpointStore checkpointStore, ConsumePipe consumePipe, int concurrencyLimit, ILoggerFactory? loggerFactory) 
+    public AxonServerStreamSubscription(AxonServerConnection connection, AxonServerStreamSubscriptionOptions options, ICheckpointStore checkpointStore, ConsumePipe consumePipe, ILoggerFactory? loggerFactory) 
         : base(options, checkpointStore, consumePipe, options.ConcurrencyLimit, loggerFactory)
     {
-        _factory = factory ?? throw new ArgumentNullException(nameof(factory));
-    }
-    
-    private async Task<IAxonServerConnection> GetConnection(CancellationToken ct)
-    {
-        var connection = await
-            _factory
-                .ConnectAsync(Options.Context, ct);
-        await connection.WaitUntilReadyAsync();
-        return connection;
+        _connection = connection ?? throw new ArgumentNullException(nameof(connection));
     }
 
     protected override async ValueTask Subscribe(CancellationToken cancellationToken)
     {
         var checkpoint = await GetCheckpoint(cancellationToken).ConfigureAwait(false);
         var token = checkpoint.Position.HasValue ? new EventSequenceNumber(Convert.ToInt64(checkpoint.Position.Value)) : new EventSequenceNumber(0);
-        EventStream = (await GetConnection(cancellationToken)).EventChannel.OpenStream(new AggregateId(Options.StreamName.GetId()), token);
+        EventStream = _connection.EventChannel.OpenStream(new AggregateId(Options.StreamName.GetId()), token);
         MessagePump = PumpEvents(EventStream, cancellationToken);
 
         async Task PumpEvents(IAggregateEventStream stream, CancellationToken ct)

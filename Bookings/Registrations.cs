@@ -30,8 +30,8 @@ public static class Registrations {
             )
         );
 
-        services.AddAxonServerConnectionFactory();
-        services.AddSingleton<AxonServerEventStoreOptions>();
+        services.AddAxonServerConnection(Context.Default, 
+            options => options.AsComponentName(new ComponentName("Bookings")));
         services.AddAggregateStore<AxonServerEventStore>();
         services.AddCommandService<BookingsCommandService, Booking>();
 

@@ -12,38 +12,26 @@ namespace AxonIQ.Eventuous;
 
 public class AxonServerEventStore : IEventStore
 {
-    private readonly AxonServerConnectionFactory _factory;
-    private readonly AxonServerEventStoreOptions _options;
+    private readonly AxonServerConnection _connection;
     private readonly IEventSerializer _serializer;
     private readonly ILogger<AxonServerEventStore>? _logger;
     private readonly Func<DateTimeOffset> _clock;
 
     public AxonServerEventStore(
-        AxonServerConnectionFactory    factory,
-        AxonServerEventStoreOptions    options,
+        AxonServerConnection           connection,
         IEventSerializer?              serializer     = null,
         Func<DateTimeOffset>?          clock          = null,
         ILogger<AxonServerEventStore>? logger         = null)
     {
-        _factory = factory ?? throw new ArgumentNullException(nameof(factory));
-        _options = options;
+        _connection = connection ?? throw new ArgumentNullException(nameof(connection));
         _serializer = serializer ?? DefaultEventSerializer.Instance;
         _clock = clock ?? (() => DateTimeOffset.UtcNow);
         _logger = logger;
     }
-
-    private async Task<IAxonServerConnection> GetConnection(CancellationToken ct)
-    {
-        var connection = await
-            _factory
-                .ConnectAsync(_options.Context, ct);
-        await connection.WaitUntilReadyAsync();
-        return connection;
-    }
     
     public async Task<bool> StreamExists(StreamName stream, CancellationToken cancellationToken) =>
         await 
-            (await GetConnection(cancellationToken))
+            _connection
                 .EventChannel
                 .OpenStream(
                     new AxonServer.Connector.AggregateId(stream.GetId()),
@@ -53,7 +41,7 @@ public class AxonServerEventStore : IEventStore
 
     public async Task<StreamEvent[]> ReadEvents(StreamName stream, StreamReadPosition start, int count, CancellationToken cancellationToken) =>
         await
-            (await GetConnection(cancellationToken))
+            _connection
                 .EventChannel
                 .OpenStream(
                     new AxonServer.Connector.AggregateId(stream.GetId()),
@@ -91,7 +79,7 @@ public class AxonServerEventStore : IEventStore
     {
         var appendable = events.Select((@event, index) => ToEvent(stream, expectedVersion.Value + index + 1, @event)).ToArray();
         
-        using var transaction = (await GetConnection(cancellationToken)).EventChannel.StartAppendEventsTransaction();
+        using var transaction = _connection.EventChannel.StartAppendEventsTransaction();
         foreach (var @event in appendable)
         {
             await transaction.AppendEventAsync(@event).ConfigureAwait(false);

@@ -13,30 +13,21 @@ namespace AxonIQ.Eventuous.Producers;
 
 public class AxonServerProducer : BaseProducer<AxonServerProducerOptions>
 {
-    private readonly AxonServerConnectionFactory _factory;
+    private readonly AxonServerConnection _connection;
     private readonly IEventSerializer _serializer;
     private readonly Func<DateTimeOffset> _clock;
     private readonly ILogger<AxonServerProducer>? _logger;
 
     public AxonServerProducer(
-        AxonServerConnectionFactory  factory,
+        AxonServerConnection         connection,
         IEventSerializer?            serializer = null,
         Func<DateTimeOffset>?        clock = null,
         ILogger<AxonServerProducer>? logger = null)
     {
-        _factory = factory ?? throw new ArgumentNullException(nameof(factory));
+        _connection = connection ?? throw new ArgumentNullException(nameof(connection));
         _serializer = serializer ?? DefaultEventSerializer.Instance;
         _clock = clock ?? (() => DateTimeOffset.UtcNow);
         _logger = logger;
-    }
-    
-    private async Task<IAxonServerConnection> GetConnection(Context context, CancellationToken ct)
-    {
-        var connection = await
-            _factory
-                .ConnectAsync(context, ct);
-        await connection.WaitUntilReadyAsync();
-        return connection;
     }
     
     protected override async Task ProduceMessages(
@@ -50,7 +41,7 @@ public class AxonServerProducer : BaseProducer<AxonServerProducerOptions>
             try
             {
                 using var transaction =
-                    (await GetConnection(options?.Context ?? Context.Default, cancellationToken))
+                    _connection
                     .EventChannel
                     .StartAppendEventsTransaction();
                 foreach (var message in chunk)

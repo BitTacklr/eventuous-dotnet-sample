@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <ItemGroup>
-        <PackageReference Include="AxonIQ.AxonServer.Connector" Version="1.0.0-preview.0.54" />
+        <PackageReference Include="AxonIQ.AxonServer.Connector" Version="1.0.0-preview.0.56" />
         <PackageReference Include="Eventuous" Version="$(EventuousVersion)" />
         <PackageReference Include="Eventuous.Subscriptions" Version="$(EventuousVersion)" />
         <PackageReference Include="Eventuous.Producers" Version="$(EventuousVersion)" />

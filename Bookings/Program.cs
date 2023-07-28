@@ -1,3 +1,4 @@
+using AxonIQ.AxonServer.Connector;
 using Bookings;
 using Bookings.Domain.Bookings;
 using Eventuous;
@@ -51,6 +52,9 @@ var listener = new LoggingEventListener(factory, "OpenTelemetry");
 
 try
 {
+    var connection = app.Services.GetRequiredService<AxonServerConnection>();
+    await connection.WaitUntilReadyAsync();
+    
     app.Run("http://*:5051");
     return 0;
 }

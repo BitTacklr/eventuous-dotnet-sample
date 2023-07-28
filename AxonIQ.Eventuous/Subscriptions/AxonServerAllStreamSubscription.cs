@@ -10,27 +10,18 @@ namespace AxonIQ.Eventuous.Subscriptions;
 
 public class AxonServerAllStreamSubscription : EventSubscriptionWithCheckpoint<AxonServerAllStreamSubscriptionOptions>
 {
-    private readonly AxonServerConnectionFactory _factory;
+    private readonly AxonServerConnection _connection;
 
-    public AxonServerAllStreamSubscription(AxonServerConnectionFactory factory, AxonServerAllStreamSubscriptionOptions options, ICheckpointStore checkpointStore, ConsumePipe consumePipe, ILoggerFactory? loggerFactory) : base(options, checkpointStore, consumePipe, options.ConcurrencyLimit, loggerFactory)
+    public AxonServerAllStreamSubscription(AxonServerConnection connection, AxonServerAllStreamSubscriptionOptions options, ICheckpointStore checkpointStore, ConsumePipe consumePipe, ILoggerFactory? loggerFactory) : base(options, checkpointStore, consumePipe, options.ConcurrencyLimit, loggerFactory)
     {
-        _factory = factory ?? throw new ArgumentNullException(nameof(factory));
-    }
-    
-    private async Task<IAxonServerConnection> GetConnection(CancellationToken ct)
-    {
-        var connection = await
-            _factory
-                .ConnectAsync(Options.Context, ct);
-        await connection.WaitUntilReadyAsync();
-        return connection;
+        _connection = connection ?? throw new ArgumentNullException(nameof(connection));
     }
 
     protected override async ValueTask Subscribe(CancellationToken cancellationToken)
     {
         var checkpoint = await GetCheckpoint(cancellationToken).ConfigureAwait(false);
         var token = checkpoint.Position.HasValue ? new EventStreamToken(Convert.ToInt64(checkpoint.Position.Value)) : EventStreamToken.None;
-        EventStream = (await GetConnection(cancellationToken)).EventChannel.OpenStream(token, Options.BufferSize, Options.RefillBatch);
+        EventStream = _connection.EventChannel.OpenStream(token, Options.BufferSize, Options.RefillBatch);
         MessagePump = PumpEvents(EventStream, cancellationToken);
 
         async Task PumpEvents(IEventStream stream, CancellationToken ct)

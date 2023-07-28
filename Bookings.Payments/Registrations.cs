@@ -28,7 +28,8 @@ public static class Registrations {
             )
         );
         
-        services.AddAxonServerConnectionFactory();
+        services.AddAxonServerConnection(Context.Default, 
+            options => options.AsComponentName(new ComponentName("Payments")));
         services.AddAggregateStore<AxonServerEventStore>();
         services.AddCommandService<CommandService, Payment>();
         services.AddSingleton(Mongo.ConfigureMongo(configuration));
